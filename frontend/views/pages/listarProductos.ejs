@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/v1/index">Logo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div style="margin-right: 40px;">
+                <form class="d-flex">
+                    <input style="width: 400px;" class="form-control me-2" type="text" placeholder="Buscar producto">
+                    <a style="margin-left: 3%; border-radius: 100%; background-color: transparent;"
+                        class="btn btn-primary" type="button"><i class="bi bi-search"></i></a>
+                </form>
+            </div>
+            <div>
+                <button style="background-color: transparent; border: none;" class="btn btn-primary" href="#"
+                    type="button">Iniciar sesión</button>
+
+                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-cart"></i></button>
+
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="jumbotron">
+            <h1>Todos los productos</h1>
+        </div>
+        <button class="btn btn-success" style="color: black;" data-bs-toggle="modal"
+            data-bs-target="#addProducto_">Añadir producto</button>
+        <table id="example" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Imagen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% productos.forEach(producto=> { %>
+                    <tr>
+                        <td>
+                            <%= producto.nombre %>
+                        </td>
+                        <td>
+                            <%= producto.descripcion %>
+                        </td>
+                        <td>
+                            $ <%= producto.precio %>
+                        </td>
+                        <td>
+                            <img style="height: 60px; width: 40px;" src="<%= producto.imagen %>" class="card-img-top">
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" style="border-radius: 30%;"
+                                data-bs-target="#editarProducto_<%= producto._id %>" data-bs-toggle="modal"><i
+                                    class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-danger" style="border-radius: 30%;"
+                                onclick="eliminarProducto('<%= producto._id %>')"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-warning" style="border-radius: 30%;"
+                                data-bs-target="#verProducto_<%= producto._id %>" data-bs-toggle="modal"><i
+                                    class="bi bi-eye"></i></button>
+                        </td>
+
+                        <%})%>
+                    </tr>
+            </tbody>
+        </table>
+
+        <% productos.forEach(producto=> { %>
+            <!-- Modal para ver producto -->
+            <div class="modal fade" id="verProducto_<%= producto._id %>" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                <%= producto.nombre %>
+                            </h1>
+                        </div>
+                        <div class="modal-body" style="display: flex; justify-content: center;">
+                            <div>
+                                <img style="height: 120px; width: 100px; margin-left: 80px;"
+                                    src="<%= producto.imagen %>" class="card-img-top">
+                                <p>Descripción: <%= producto.descripcion %>
+                                </p>
+                                <p>Precio: $ <%= producto.precio %>
+                                </p>
+                                <p>Elije la cantidad que desees:
+                                    <input style="margin-left: 30px;" type="number" name="cantidad"
+                                        id="<%= producto.stock %>" min="1" max="<%= producto.stock %>" value="1"
+                                        size="3" />
+                                </p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Modal para editar producto -->
+            <div class="modal fade" id="editarProducto_<%= producto._id %>" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Editar <%= producto.nombre %>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="display: flex; justify-content: center;">
+                            <form id="formEditProduct_<%= producto._id %>" method="post">
+                                <div class="mb-3">
+                                    <label for="nombre_<%= producto._id %>" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre_<%= producto._id %>"
+                                        name="nombre" value="<%= producto.nombre %>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descripcion_<%= producto._id %>" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion_<%= producto._id %>"
+                                        name="descripcion"><%= producto.descripcion %></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="precio_<%= producto._id %>" class="form-label">Precio</label>
+                                    <input type="number" class="form-control" id="precio_<%= producto._id %>"
+                                        name="precio" value="<%= producto.precio %>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="stock_<%= producto._id %>" class="form-label">Cantidad</label>
+                                    <input type="number" class="form-control" id="stock_<%= producto._id %>"
+                                        name="stock" value="<%= producto.stock %>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="habilitado_<%= producto._id %>" class="form-label">Habilitado</label>
+                                    <select class="form-control" id="habilitado_<%= producto._id %>" name="habilitado">
+                                        <option value="true" <%=producto.habilitado ? 'selected' : '' %>>Sí</option>
+                                        <option value="false" <%=!producto.habilitado ? 'selected' : '' %>>No</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" name="_id" value="<%= producto._id %>">
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-primary"
+                                onclick="submitForm('<%= producto._id %>')">Guardar cambios</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function submitForm(productId) {
+                    const form = document.getElementById(`formEditProduct_${productId}`);
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    fetch(`/productos/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.error) {
+                                alert('Error al editar producto: ' + result.message);
+                            } else {
+                                alert('Producto editado correctamente.');
+                                window.location.reload(); // Opcional: recarga la página para mostrar los cambios
+                            }
+                        })
+                        .catch(error => {
+                            alert('Error en la solicitud: ' + error.message);
+                        });
+                }
+            </script>
+
+
+            <div class="modal fade" id="eliminarProducto_" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 style="color: red;" class="modal-title fs-5" id="exampleModalLabel">
+                                <%= producto.nombre %>
+                            </h1>
+                        </div>
+                        <div class="modal-body" style="display: flex; justify-content: center;">
+                            <div>
+                                <img src="<%= producto.imagen %>" class="card-img-top">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-danger type=" button" style="background-color: red; border: none;"
+                                onclick="deleteOne('<%= producto._id %>')">Eliminar producto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function eliminarProducto(productoId) {
+                    if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+                        fetch(`/productos/${productoId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    alert('Producto eliminado correctamente.');
+                                    window.location.reload(); // Opcional: recarga la página para reflejar el cambio
+                                } else {
+                                    return response.json().then(error => {
+                                        alert('Error al eliminar producto: ' + error.message);
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                alert('Error en la solicitud: ' + error.message);
+                            });
+                    }
+                }
+            </script>
+
+
+            <!-- Modal para agregar un nuevo producto -->
+            <div class="modal fade" id="addProducto_" tabindex="-1" aria-labelledby="addProductModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addProductModalLabel">Agregar Nuevo Producto</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addProductForm" method="post" action="/productos">
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion" name="descripcion"
+                                        required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="precio" class="form-label">Precio</label>
+                                    <input type="number" class="form-control" id="precio" name="precio" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="imagen" class="form-label">URL de la Imagen</label>
+                                    <input type="text" class="form-control" id="imagen" name="imagen" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="stock" class="form-label">Cantidad</label>
+                                    <input type="number" class="form-control" id="stock" name="stock" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="habilitado" class="form-label">Habilitado</label>
+                                    <select class="form-control" id="habilitado" name="habilitado" required>
+                                        <option value="true">Sí</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.getElementById('addProductForm').addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+
+                    try {
+                        const response = await fetch(this.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                        });
+
+                        if (response.ok) {
+                            alert('Producto añadido correctamente.');
+                            window.location.reload(); // Opcional: recarga la página para mostrar el nuevo producto
+                        } else {
+                            const error = await response.json();
+                            alert('Error al añadir producto: ' + error.message);
+                        }
+                    } catch (error) {
+                        alert('Error en la solicitud: ' + error.message);
+                    }
+                });
+            </script>
+
+            <%})%>
+
+
+
+    </main>
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+
+</html>

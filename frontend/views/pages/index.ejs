@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/v1/index">Logo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" style="color: white;" href="/productos">Ver Productos</a>
+                    </li>
+                </ul>
+            </div>
+            <div style="margin-right: 40px;">
+                <form class="d-flex">
+                    <input style="width: 400px;" class="form-control me-2" type="text" placeholder="Buscar producto">
+                    <a style="margin-left: 3%; border-radius: 100%; background-color: transparent;"
+                        class="btn btn-primary" type="button"><i class="bi bi-search"></i></a>
+                </form>
+            </div>
+            <div>
+                <button style="background-color: transparent; border: none;" class="btn btn-primary" href="#"
+                    type="button">Iniciar sesión</button>
+
+                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-cart"></i></button>
+
+            </div>
+        </div>
+    </nav>
+    <main>
+        <div class="jumbotron">
+            <h1>Bienvenidos a Fake Store</h1>
+        </div>
+        <table id="example" class="table table-striped" style="width:100%">
+            <tbody>
+                <div class="container">
+                    <div class="row" style="display: flex; justify-content: space-between;">
+                    <% productos.forEach(producto => { %>
+                        <div class="card" style="width: 18rem;">
+                            <br>
+                            <img style="height: 80px; width: 60px; margin-left: 110px;" src="<%= producto.imagen %>"
+                                class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= producto.nombre %></h5>
+                                <p class="card-text">Precio: $ <%= producto.precio %></p>
+                                <button type="button"
+                                    style="background-color: red; display: flex; justify-content: center; border: none;"
+                                    class="btn btn-primary" data-bs-target="#ver_producto_<%= producto._id %>" data-bs-toggle="modal"><i class="bi bi-cart"></i> Añadir al carrito</button>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="ver_producto_<%= producto._id %>" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel"><%= producto.nombre %></h1>
+                                    </div>
+                                    <div class="modal-body" style="display: flex; justify-content: center;">
+                                        <div>
+                                            <img style="height: 120px; width: 100px; margin-left: 80px;" src="<%= producto.imagen %>" class="card-img-top">
+                                            <p>Descripción: <%= producto.descripcion %></p>
+                                            <p>Precio: $ <%= producto.precio %></p>
+                                            <form id="addToCartForm_<%= producto._id %>">
+                                                <p>Elije la cantidad que desees: 
+                                                    <input style="margin-left: 30px;" type="number" name="cantidad" id="cantidad_<%= producto._id %>" min="1" max="<%= producto.stock %>" value="1" size="3" />
+                                                </p>
+                                                <button type="button" class="btn btn-primary" onclick="addToCart('<%= producto._id %>')"><i class="bi bi-cart"></i> Añadir al carrito</button>
+                                                <button class="btn btn-outline-primary" onclick="pagar()">Confirmar pedido</button>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                    </div>
+                </div>
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
+
+    <script>
+        function pagar() {
+		location.href = '/v1/index';
+	}
+
+    </script>
+
+    <script>
+        function addToCart(productId) {
+            const form = document.getElementById(`addToCartForm_${productId}`);
+            const quantity = form.querySelector(`#cantidad_${productId}`).value;
+            
+            fetch(`/carrito`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity
+                }),
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert('Error al agregar al carrito: ' + result.message);
+                } else {
+                    alert('Producto agregado al carrito.');
+                    // Opcional: cerrar el modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById(`ver_producto_${productId}`));
+                    modal.hide();
+                }
+            })
+            .catch(error => {
+                alert('Error en la solicitud: ' + error.message);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
